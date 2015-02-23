@@ -11,6 +11,32 @@
       }
 
       /* ваши стили */
+      .draggable-window {
+        position: absolute;
+        z-index: 999;
+
+        background-color: lightblue;
+        border: 1px solid blue;
+      }
+
+      .draggable-window.dragging .draggable-window-title {
+        cursor: move;
+      }
+
+      .draggable-window-title {
+        cursor: pointer;
+        color: white;
+        background-color: blue;
+        text-align: center;
+      }
+
+      .draggable-window-dialog {
+        height: 200px;
+        overflow: auto;
+
+        background-color: white;
+        border: 1px solid blue;
+      }
 
     </style>
 </head>
@@ -24,7 +50,14 @@
 Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст
 
 <script type="text/template" id="draggable-window-template">
-  /* шаблон для окна */
+  <div class="draggable-window" style="top: 0; left: 0;">
+    <div class="draggable-window-title"><%=title%></div>
+    <div class="draggable-window-dialog"></div>
+    <form class="draggable-window-message-form">
+      <input type+"text" class="draggable-window-message"></input>
+      <input type="submit" class="draggable-window-submit"></input>
+    </form>
+  </div>
 </script>
 
 <script>
@@ -39,7 +72,73 @@
 function DraggableWindow(options) {
   var self = this;
 
+  var elem;
+  var template = _.template(options.template);
+
   /* ваш код */
+  function render() {
+    elem = $(template({
+      title: options.title,
+    }));
+
+    elem.on("mousedown", ".draggable-window-title", onTitleDown);
+    elem.find(".draggable-window-message-form").on("submit", onMessageSubmit);
+
+    return elem;
+  }
+
+  function onMessageSubmit() {
+    sendMessage();
+
+    return false;
+  }
+
+  function sendMessage() {
+    elem.find(".draggable-window-dialog").append($("<p/>", {
+      html: elem.find(".draggable-window-message").html(),
+    }));
+  }
+
+  function startDrag(x, y) {
+    elem.addClass("dragging");
+
+    var shiftX = x - elem.offset().left;
+    var shiftY = y - elem.offset().top;
+
+    $(document).on("mousemove.dragging", onMove)
+    .on("mouseup.dragging", onUp);
+
+    function onMove(e) {
+      moveAt(e.pageX, e.pageY);
+    }
+
+    function onUp() {
+      stopDrag();
+    }
+
+    function stopDrag() {
+      elem.removeClass("dragging");
+      $(document).off(".dragging");
+    }
+
+    function moveAt(x, y) {
+      elem.css({
+        left: x - shiftX + "px",
+        top: y - shiftY + "px",
+      });
+    }
+
+  }
+
+
+  function onTitleDown(e) {
+    startDrag(e.pageX, e.pageY);
+  }
+
+
+  self.getElement = function() {
+    return elem || render();
+  }
 }
 
 var win = new DraggableWindow({
