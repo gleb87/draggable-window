@@ -38,6 +38,10 @@
         border: 1px solid blue;
       }
 
+      .draggable-window-message-form {
+        padding: 2px;
+      }
+
     </style>
 </head>
 <body>
@@ -94,9 +98,24 @@ function DraggableWindow(options) {
   }
 
   function sendMessage() {
-    elem.find(".draggable-window-dialog").append($("<p/>", {
-      html: elem.find(".draggable-window-message").html(),
-    }));
+    var messageElem = elem.find(".draggable-window-message");
+    var dialogElem = elem.find(".draggable-window-dialog");
+
+    var value = messageElem.val();
+    if (value) {
+      var mesDiv = $("<div/>", {
+        html: value,
+      });
+
+      dialogElem.append(mesDiv);
+      messageElem.val("");
+
+      var mesDivBottom = mesDiv.offset().top + mesDiv.height();
+      var dialogElemBottom = dialogElem.offset().top + dialogElem.innerHeight();
+      console.log(dialogElem.height() + ", " + dialogElem.get(0).clientHeight);
+      if (mesDivBottom > dialogElemBottom) dialogElem.scrollTop(dialogElem.get(0).scrollHeight - dialogElem.get(0).clientHeight);
+    }
+
   }
 
   function startDrag(x, y) {
