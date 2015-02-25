@@ -15,6 +15,9 @@
         position: absolute;
         z-index: 999;
 
+        width: 265px;
+        height: 305px;
+
         background-color: lightblue;
         border: 1px solid blue;
       }
@@ -24,14 +27,18 @@
       }
 
       .draggable-window-title {
+        width: 265px;
+        height: 25px;
+
         cursor: pointer;
         color: white;
         background-color: blue;
         text-align: center;
+        line-height: 25px;
       }
 
       .draggable-window-dialog {
-        height: 200px;
+        height: 250px;
         overflow: auto;
 
         background-color: white;
@@ -40,6 +47,16 @@
 
       .draggable-window-message-form {
         padding: 2px;
+      }
+
+      .draggable-window-submit {
+        width: 100px;
+        height: 20px;
+      }
+
+      .draggable-window-message {
+        width: 145px;
+        height: 15px;
       }
 
     </style>
@@ -141,9 +158,21 @@ function DraggableWindow(options) {
     }
 
     function moveAt(x, y) {
+      var newLeft = x - shiftX;
+      var newTop =  y - shiftY;
+
+      var titleElem = elem.find(".draggable-window-title");
+      var newRight = newLeft + titleElem.width();
+      var newBottom = newTop + titleElem.height();
+
+      if (newLeft < 0) newLeft = 0;
+      if (newRight > $(window).width()) newLeft = $(window).width() - titleElem.width() - 2;
+      if (newTop < 0) newTop = 0;
+      if (newBottom > $(window).height()) newTop = $(window).height() - titleElem.height();
+
       elem.css({
-        left: x - shiftX + "px",
-        top: y - shiftY + "px",
+        left: newLeft + "px",
+        top: newTop + "px",
       });
     }
 
